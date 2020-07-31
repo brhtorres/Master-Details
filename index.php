@@ -1,147 +1,134 @@
-<!--
+<?php 
 
--> Adicionar número de funcionários por departamento
--> Ajeitar imagens, botões e design
+  $servername = "localhost";
+  $username = "root";
+  $password = "gladhesgone";
+  $dbname = "dpto-database";
 
--->
+  $conn = mysqli_connect($servername, $username, $password);
+
+  mysqli_set_charset($conn,"utf8");
+
+  if(!$conn) {
+    die("Falha na conexão: " . msqli_connect_error());
+  }
+
+  if (!mysqli_select_db($conn, $dbname)){
+    echo "Não foi possível selecionar a base de dados \"$dbname\":" . mysqli_error($conn);
+    exit;
+  }
+
+  $sql = "SELECT dptoName FROM departament";
+
+  $departaments = mysqli_query($conn, $sql);
+
+  if (!$departaments) {
+    die("Falha na Execução da Consulta: " . $sql ."<BR>" .
+        mysqli_error($conn));
+  }
+
+  if (mysqli_num_rows($departaments) == 0) {
+      echo "Não foram encontradas linhas, nada para mostrar <BR>";
+      exit;
+  }
+  
+  function createCards() {    
+      while ($row = mysqli_fetch_assoc($GLOBALS['departaments'])) {
+      echo '<div class="space col-lg-4 col-md-10">';
+      echo  '<div class="card" style="width: 30rem;">' ; 
+      echo    '<div class="card-body">' ;
+      echo      '<h5> Departamento de ' .$row["dptoName"] .'</h5>';            
+      echo      '<a href="#" class="card-link">Abrir</a>' ;
+      echo    '</div>';
+      echo  '</div>';
+      echo '</div>';
+      echo '<br>';
+    }       
+  }
+
+
+?>
+
 <!DOCTYPE html>
 <html>
+  <head>
+    <title>Departamentos</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
 
-<head>
-	<title>Departamentos</title>
-	<meta charset="utf-8">
-	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <style type="text/css">
+      .container-fluid {
+        padding: 0;
+      }
+      .space {
+        margin: 20px 0;
+      }
 
-	<style type="text/css">
+      .card {
+        margin: 0 auto;
+      }
+      .btn-space {
+        margin-left:85%;
+      }
 
-		.topics {
-			transition: all 0.5s;
-			cursor: pointer;
-			background-color: #63a4ff;
-			width: 540px;
-			height: 180px;
-			margin-bottom: 13%; 
-			border-radius: 10px;
-			box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
-		}
+    </style>
+  </head>
 
-		.topics:hover{
-			-webkit-transform: scale(1.1);
-			transform: scale(1.1);
-		}
+  <body>
 
-		.col1 {
-			position: relative;
-			float: left;
-			margin-left: 8%;
-			margin-top: 13%;
-		}
+    <div class="container-fluid">
 
-		.col2 {
-			position: relative;
-			float: right;
-			margin-right: 8%;
-			margin-top:13%;
-		}
+      <nav class="navbar navbar-light bg-light"> 
+        <a class="navbar-brand" href="#">Sistema de Departamentos</a>
 
-	</style>
-</head>
-
-<body>
-
-	<?php
+        <div class= "add-button-box">
+          <button class="btn btn-outline-success my-2 my-sm-0" data-toggle="modal" data-target="#add-dep" type="button">Add</button>
+        </div>
+      </nav>
  
-		$servername = "localhost";
-		$username = "root";
-		$password = "gladhesgone";
-		$dbname = "dpto-database"; 
+      <div class="row align-items-center justify-content-around">
+          <?php createCards(); ?>       
+      </div>
+    </div>
 
-		$conn = mysqli_connect($servername, $username, $password);
+    <div class="modal fade" id="add-dep" tabindex="-1" role="dialog" aria-labelledby="title" aria-hidden="true">
+      
+      <div class="modal-dialog">
 
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="title">Adicionar Departamento</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
 
-		if (!$conn) {
-		  die("Falha na Conexão: " . mysqli_connect_error());
-		}
-		echo "Conectado com Sucesso <BR><BR>";
+          <div class="modal-body">
+            <form id= "formDep" class = "formDep" method="POST" action="">
+              <div class="form-group">
+                <label for="dep-name" class="col-form-label">Nome:</label> 
+                <input type="text" name="nameDep" class="form-control" id="dep-name" required> &nbsp                 
+                <button type="submit" class="btn btn-success btn-space">Salvar</button>
+              </div>
+            </form>
+          </div>
 
-		if (!mysqli_select_db($conn,$dbname)) {
-		    echo "Não foi possível selecionar base de dados \"$dbname\": " . mysqli_error($conn);
-		    exit;
-		}
-   
-		$stmt = mysqli_stmt_init($conn);
+          <!--<div class="modal-footer">
+            <button type="button" class="btn btn-danger" data-dismiss="modal">Cancelar</button>
+          </div>-->
 
-		//devolve um boolen indicando se a string do stmt está ok
-		$stmt_prepared_okay =  mysqli_stmt_prepare($stmt, "INSERT INTO employed (empName) VALUES (?)");   
+        </div>
 
-		if ($stmt_prepared_okay) {
-		    /*tipos possíveis de marcadores:
-		      i - integer
-		      d - double
-		      s - string
-		      b - BLOB*/
-		    mysqli_stmt_bind_param($stmt, "s", $name,);
-		    
-		    $stmt_executed_okay = mysqli_stmt_execute($stmt);
+      </div>
 
-		    if ($stmt_executed_okay) {
-			   echo "Os registros foram inseridos com sucesso.";
-		    } else {
-		        echo "Não foi possível executar a inserção de ".
-		             "$name no banco de dados" . 
-		             mysqli_error($conn);
-		        exit;
-		    }
-		      mysqli_stmt_close($stmt);
-		}
-		mysqli_close($conn);    
+    </div>
 
-	?>
-	
-
-	<!--<div style="background-color: #3a6073; position: fixed; z-index: 100; top:0; width: 100%; height: 50px;">
-		
-	</div>-->
-
-
-	<div class="col1">
-		<div class="topics" >
-			<a href="p2.php"></a>
-			<div style="text-shadow: 0.1em 0.1em rgba(0,0,0,0.5); font-family: fantasy; color: white; margin-left: 8%; margin-top: 5%; font-size: 36px"> <em>Departamento de RH</em></div>
-		</div>	
-
-		<div class="topics" >
-			<a href="p3.php"></a>
-			<div style="text-shadow: 0.1em 0.1em rgba(0,0,0,0.5); font-family: fantasy; color: white; margin-left: 5%; margin-top: 3%; font-size: 36px"> <em> Departamento de Administração</em></div>
-		</div>	
-
-		<div class="topics" >
-			<a href="p3.php"></a>
-			<div style="text-shadow: 0.1em 0.1em rgba(0,0,0,0.5); font-family: fantasy; color: white; margin-left: 5%; margin-top: 3%; font-size: 36px"> <em>Departamento de Contabilidade</em></div>
-		</div>		
-
-	</div>
-
-	<div class="col2">
-
-		<div class="topics">
-			<a href="p4.php"></a>
-			<div style="text-shadow: 0.1em 0.1em rgba(0,0,0,0.5); font-family: fantasy; color: white; margin-left: 8%; margin-top: 5%; font-size: 36px"> <em>Departamento de Educação</em></div>
-		</div>	
-
-		<div class="topics" >
-			<a href="p5.php"></a>
-			<div style="text-shadow:0.1em 0.1em rgba(0,0,0,0.5); font-family: fantasy; color: white; margin-left: 7%; margin-top: 5%; font-size: 36px"> <em>Departamento de Saúde</em></div>
-		</div>	
-
-		<div class="topics" >
-			<a href="p5.php"></a>
-			<div style="text-shadow:0.1em 0.1em rgba(0,0,0,0.5); font-family: fantasy; color: white; margin-left: 7%; margin-top: 5%; font-size: 36px"> <em>Departamento de Infraestrutura</em></div>
-		</div>	
-
-	</div>
-
-
-</body>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="http://localhost/PWEBProjects/Master-Detail/modal.js"></script>
+  </body>
 
 </html>
